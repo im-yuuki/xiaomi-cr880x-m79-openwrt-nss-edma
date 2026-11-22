@@ -5,7 +5,6 @@ Running **OpenWrt snapshot (kernel 6.18.60)** on the **Xiaomi CR880x** family �
 This repository archives the work done to get OpenWrt (with **Qualcomm NSS hardware offload**) running on that board:
 
 - **`docs/`** — device profile, U-Boot/console notes, build & flash guide, verification results.
-- **`artifacts/SHA256SUMS.txt`** — hashes of the flashed images (reproduce, don't download).
 - **`openwrt-nss-edma/`** — git submodule tracking **`kuncy7/openwrt-nss-edma` @ `c3po-tag-8021q`**. The archive carries the vendor patches separately: `patches/` (the one board-specific commit + the `files/` reproducible-build overlay), `overlay/` (the same files, pre-copied), and `docs/nand-ecc.md`.
 
 The base platform is [`kuncy7/openwrt-nss-edma`](https://github.com/kuncy7/openwrt-nss-edma) branch `c3po-tag-8021q` — the community Qualcomm NSS EDMA effort for IPQ5018 (upstream Linux 6.18, `stmmac` driver, `kmod-qca-dwmac-nss`). Neither this repo nor the fork redistribute Xiaomi proprietary blobs: everything is in-tree open-source or built by the vendor build system.
@@ -16,7 +15,7 @@ Working snapshot — boots from NAND, both radios (2.4 GHz IPQ5018 + 5 GHz QCN61
 
 ## NSS kmod feed (ipq50xx-2026.11.11/256m)
 
-Upstream's official image ships a throwaway `public-key.pem` in `/etc/apk/keys/` that verifies that release's kmod feed. The key for `ipq50xx-2026.11.11/256m` is included in `artifacts/keys/` — install it and point `customfeeds.list` at the feed to `apk add` NSS kmods on the device. See `docs/nss-feed.md`.
+Upstream's official image ships a build-specific `public-key.pem` in `/etc/apk/keys/` that verifies that release's kmod feed. See [`docs/nss-feed.md`](docs/nss-feed.md) for the `ipq50xx-2026.11.11/256m` public key and setup instructions.
 
 ## Layout
 
@@ -29,8 +28,6 @@ docs/
   uboot-notes.md   — U-Boot console notes + safety rules
   build-flash.md   — build from source, install, extroot, verify, rollback
   verify.md        — what was verified on hardware
-artifacts/
-  SHA256SUMS.txt   — image hashes (not shipping binaries)
 openwrt-nss-edma/  — submodule (upstream c3po-tag-8021q)
 .private/          — NOT in git: dumps, nvram, logs, local notes
 ```

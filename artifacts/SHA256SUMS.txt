@@ -1,5 +1,0 @@
-# Checksums of the final OpenWrt images built for Xiaomi CR8808 (CR8806/CR8806-class board), kernel 6.18.60, NSS firmware 12.5-210, from kuncy7/openwrt-nss-edma branch c3po-tag-8021q (+ ECC fix) with files overlay. Verified by sha256 after build.
-# Not distributing binaries in this repo — reproduce with the submodule + commands in docs/build-flash.md.
-openwrt-qualcommax-ipq50xx-xiaomi_cr8806-initramfs-uImage.itb  c3a932fc5cb6719b04d4c1c50ed0ddefa20094132ef0a766da19c3942f7a696f
-openwrt-qualcommax-ipq50xx-xiaomi_cr8806-squashfs-factory.ubi      f0c04fbe184854f7f819aa27ddaff19d763d49daa7b4bcb1441e39612e701097
-openwrt-qualcommax-ipq50xx-xiaomi_cr8806-squashfs-sysupgrade.bin    2a40c75d5749b4a06b1fd3d767f9081ea1cfc278f57bdca103785d3912403f71

@@ -1,3 +1,0 @@
-# Custom feed for ipq50xx-2026.11.11/256m kmod repository (packages signed by
-# the corresponding OpenWrt firmware release — see artifacts/keys/ and docs/nss-feed.md).
-https://kuncy7.github.io/openwrt-nss-edma/ipq50xx-2026.11.11/256m/packages.adb

@@ -84,7 +84,7 @@ openwrt-qualcommax-ipq50xx-xiaomi_cr8806-squashfs-sysupgrade.bin
 sha256sums, manifest, config.buildinfo, feeds.buildinfo
 ```
 
-Cross-check checksums (this archive ships only hashes, not binaries — see `artifacts/SHA256SUMS.txt`).
+Before flashing, check the image against `sha256sums` from the same build.
 
 ## 4. Flash
 

@@ -1,15 +1,6 @@
 # NSS feed (ipq50xx-2026.11.11/256m) — keys and verification
 
-The nss-packages kmod feed for ipq50xx isn't signed by any key shipped in the upstream image, but each **release** ships a throwaway-built `public-key.pem` in `/etc/apk/keys/` that signs that specific feed index. The key for `ipq50xx-2026.11.11/256m` is included here so this archive is self-contained.
-
-## Key (public) — for `ipq50xx-2026.11.11/256m`
-
-```
------BEGIN PUBLIC KEY-----
-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEbG8lQFi/Z2RYPB5y1rOKl6T+gVtb
-hlMY8l0l3le5whTdT8WhD6KVPrbA09bLtTecFrxnKEe5jiI3NEfen5qDkw==
------END PUBLIC KEY-----
-```
+Each upstream release image ships a build-specific `public-key.pem` in `/etc/apk/keys/` that verifies its NSS kmod feed index. The setup below includes the public key for `ipq50xx-2026.11.11/256m`.
 
 Contents of this fork release are not all identical to stock OpenWrt snapshots for the same kernel, so the repo also carries the (unchanged) `distfeeds.list` pinned to official snapshots.
 
@@ -17,8 +8,12 @@ Contents of this fork release are not all identical to stock OpenWrt snapshots f
 
 ```sh
 # 1. install the public key (name only matters for tracking)
-curl -sS -o /etc/apk/keys/openwrt-nss-edma-ipq50xx-2026.11.11.pem \
-  https://github.com/im-yuuki/xiaomi-cr8808-m79-openwrt-nss-edma/raw/main/artifacts/keys/openwrt-nss-edma-ipq50xx-2026.11.11.pem
+cat > /etc/apk/keys/openwrt-nss-edma-ipq50xx-2026.11.11.pem <<'EOF'
+-----BEGIN PUBLIC KEY-----
+MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEbG8lQFi/Z2RYPB5y1rOKl6T+gVtb
+hlMY8l0l3le5whTdT8WhD6KVPrbA09bLtTecFrxnKEe5jiI3NEfen5qDkw==
+-----END PUBLIC KEY-----
+EOF
 
 # 2. add the feed
 echo 'https://kuncy7.github.io/openwrt-nss-edma/ipq50xx-2026.11.11/256m/packages.adb' \
