@@ -22,7 +22,7 @@ Upstream's official image ships a build-specific `public-key.pem` in `/etc/apk/k
 ```
 .github/
   workflows/build-cr880x.yml — scheduled / manual firmware + kmod-feed build
-  ci/cr8806.config           — validated build config (+ extra kmods for the feed)
+  ci/cr8806.config           — firmware and optional APK package selection
 docs/
   device.md        — hardware profile (summary, sanitized)
   uboot-notes.md   — U-Boot console notes + safety rules
@@ -46,8 +46,8 @@ The workflow:
 1. pulls `openwrt-nss-edma` to the newest commit on upstream `c3po-tag-8021q`
    (not the pinned gitlink), then applies `patches/`;
 2. builds the `xiaomi_cr8806` image with `.github/ci/cr8806.config`;
-3. publishes the images **and the build's APK repository — including every
-   `kmod-*.apk` — with its signed `packages.adb` index** to GitHub Pages under
+3. publishes the images **and the build's signed APK repository** (kernel
+   modules and userspace packages) to GitHub Pages under
    `gh-pages`, one `ipq50xx-YYYY.MM.DD-N/` directory per build (newest 3 kept;
    a rebuild of the same run gets an `-aN` suffix).
 
@@ -69,6 +69,16 @@ build's feed, so `apk update && apk add kmod-wireguard` works on a matching
 image. The feed is signed with a build-local throwaway key; its public half is
 embedded in the image and published as `public-key.pem` — the private key never
 leaves the runner.
+
+CI images include LuCI and NSS offload, but leave ZRAM, SQM and extra diagnostics
+out of the default install. After `apk update`, install only what you need:
+
+```sh
+apk add zram-swap                            # ZRAM; pulls in the matching kmod
+apk add luci-app-sqm sqm-scripts-nss tc-full  # SQM with the NSS shaper
+apk add nssinfo                             # NSS statistics
+apk add htop iperf3 bind-dig dumpimage       # OpenWrt's snapshot feeds
+```
 
 The build stays in the GitHub-hosted runner workspace: `/mnt` is not
 guaranteed to be a separate disk. The job logs actual free space and only

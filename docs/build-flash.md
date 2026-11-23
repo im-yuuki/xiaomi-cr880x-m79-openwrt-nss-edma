@@ -37,34 +37,15 @@ Do **not** build as root — build as a non-privileged user (e.g. `useradd -m bu
 ## 3. Feeds + defconfig
 
 ```bash
+cd openwrt-nss-edma  # from the repository root, after applying the patches
 ./scripts/feeds update -a
 ./scripts/feeds install -a
+cp ../.github/ci/cr8806.config .config
 ```
 
-Base config for 256 MB devices is `.github/ci/ipq50xx/256m.config` + `common.config`. To build **only** `xiaomi_cr8806` (CR8806/CR8808/CR8809/AX3000T M81), take those two files as starting point, keep only:
-
-```
-CONFIG_TARGET_qualcommax_ipq50xx_DEVICE_xiaomi_cr8806=y
-```
-
-plus your own package choices (LuCI, wpad-mbedtls, zram-swap — the build used in this archive also selects `luci`, `luci-app-nss`, `luci-app-sqm`, `wpad-mbedtls`, `zram-swap`, `htop`, `ethtool`). Add to the same `.config`:
-
-```
-CONFIG_TARGET_qualcommax_ipq50xx_DEVICE_xiaomi_cr8806=y
-CONFIG_PACKAGE_MAC80211_NSS_SUPPORT=y
-CONFIG_ATH11K_NSS_SUPPORT=y
-CONFIG_NSS_DRV_VLAN_ENABLE=y
-CONFIG_NSS_DRV_IPV6_ENABLE=y
-CONFIG_NSS_DRV_VIRT_IF_ENABLE=y
-CONFIG_PACKAGE_nss-tools-dwmac=y
-CONFIG_PACKAGE_nss-firmware=y
-CONFIG_NSS_FIRMWARE_VERSION_12_5=y
-CONFIG_NSS_MEM_PROFILE_LOW=y
-CONFIG_ATH11K_MEM_PROFILE_256M=y
-CONFIG_PACKAGE_zram-swap=y
-CONFIG_PACKAGE_wpad-mbedtls=y
-# if you want a reproducible config with the extroot overlay:
-```
+The CI config targets `xiaomi_cr8806` on 256 MB boards and keeps LuCI and NSS
+support in the image. Extra packages selected as `=m` are built as APKs but
+not installed in the image.
 
 The overlay in `files/` (`lib/preinit/09_mount_overlay_data`, `etc/config/fstab`) attaches partition `overlay` (mtd20, 31 MiB) as `ubi1`, creates `rootfs_data`, then drops the 1 MiB `rootfs_data` in slot `rootfs_1` — the NAND extroot pivot lands on ~27 MB instead of 10 MB. If you **don't** want extroot, delete those two files from the image (the build will then use the slot's own small `rootfs_data`).
 

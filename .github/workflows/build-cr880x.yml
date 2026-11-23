@@ -43,6 +43,8 @@ jobs:
     name: Build CR8806 firmware
     runs-on: ubuntu-latest
     timeout-minutes: 360
+    env:
+      FEED_ONLY_PACKAGES: zram-swap kmod-zram nssinfo luci-app-sqm sqm-scripts sqm-scripts-nss tc-full
     outputs:
       tag: ${{ steps.tag.outputs.tag }}
       upstream_commit: ${{ steps.upstream.outputs.commit }}
@@ -128,6 +130,12 @@ jobs:
             CONFIG_PACKAGE_kmod-qca-nss-ecm=y \
             CONFIG_PACKAGE_kmod-qca-dwmac-nss=y; do
             grep -qxF "$sym" .config || { echo "::error::defconfig dropped $sym"; exit 1; }
+          done
+          # Keep optional packages downloadable without putting them in the image.
+          read -ra optional <<< "$FEED_ONLY_PACKAGES"
+          for pkg in "${optional[@]}"; do
+            grep -qxF "CONFIG_PACKAGE_${pkg}=m" .config \
+              || { echo "::error::$pkg must be built for the feed only"; exit 1; }
           done
           # Point the image at this build's own feed. The official snapshot feeds
           # stay for non-kernel packages; their kmods have a different vermagic.
@@ -267,7 +275,21 @@ jobs:
             "openwrt-qualcommax-ipq50xx-${DEVICE}-squashfs-sysupgrade.bin"; do
             [[ -f "$out/$f" ]] || { echo "::error::missing $out/$f"; exit 1; }
           done
-          [[ -f "$out/packages/packages.adb" ]] || { echo "::error::no package index"; exit 1; }
+          [[ -s "$out/packages/packages.adb" ]] || { echo "::error::no package index"; exit 1; }
+          [[ -s "$out/packages/public-key.pem" ]] || { echo "::error::no package public key"; exit 1; }
+          read -ra optional <<< "$FEED_ONLY_PACKAGES"
+          for pkg in "${optional[@]}"; do
+            compgen -G "$out/packages/${pkg}-[0-9]*.apk" >/dev/null \
+              || { echo "::error::$pkg is missing from the package repository"; exit 1; }
+          done
+          manifest="$out/openwrt-qualcommax-ipq50xx.manifest"
+          [[ -s "$manifest" ]] || { echo "::error::no image manifest"; exit 1; }
+          for pkg in "${optional[@]}" bind-dig dumpimage htop iperf3; do
+            if grep -q "^${pkg}[[:space:]]" "$manifest"; then
+              echo "::error::$pkg must not be built into the image"
+              exit 1
+            fi
+          done
           compgen -G "$out/packages/kmod-*.apk" >/dev/null \
             || { echo "::error::no kmod packages built"; exit 1; }
           n=$(find "$out/packages" -maxdepth 1 -name 'kmod-*.apk' | wc -l)
@@ -287,7 +309,7 @@ jobs:
           if-no-files-found: error
           retention-days: 3
 
-      - name: Upload package repository (all kmods)
+      - name: Upload package repository
         uses: actions/upload-artifact@v4
         with:
           name: kmods-${{ steps.tag.outputs.tag }}
@@ -398,10 +420,10 @@ jobs:
             echo "# Xiaomi CR880x OpenWrt (NSS offload)"
             echo
             echo "One directory per build. Firmware images and that build's signed APK"
-            echo "repository (all \`kmod-*.apk\`) are kept together: a kmod only installs on"
-            echo "an image from the same build."
+            echo "repository are kept together: a kmod only installs on an image from the"
+            echo "same build."
             echo
-            echo "| build | kmod feed | firmware |"
+            echo "| build | APK feed | firmware |"
             echo "|---|---|---|"
             for t in "${dirs[@]:0:KEEP}"; do
               echo "| $t | [packages.adb](${t}/packages.adb) | [firmware/](${t}/firmware/) |"

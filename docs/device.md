@@ -44,7 +44,7 @@ The goal: replace the stock MiWiFi firmware with OpenWrt while keeping Qualcomm'
 - NSS Wi-Fi offload path is the biggest CPU saving; wired offload saturates the gigabit conduit in routing tests.
 - OpenWrt's connection to the stock dual-boot layout is pragmatic (`flag_boot_rootfs`); not a generic A/B user-facing UX. Treat stock MiWiFi as your recovery net (slot 0).
 - `wifi` in this snapshot prefers 5 GHz `radio1`; 2.4 GHz works but is CPU-heavy.
-- It's still 256 MB RAM; avoid heavy stacks, prefer NSS offload. zram is included in this build.
+- The board has 256 MB RAM; avoid heavy stacks and prefer NSS offload. The hardware tests used an older build with zram; CI images leave it off by default.
 
 ## Where the details live
 
